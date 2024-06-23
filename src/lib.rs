@@ -159,10 +159,13 @@ fn set_parent(
     }
 }
 
-fn scale_delta_adjustable(delta: f32, curve: f32, strength: f32) -> f32 {
-    let sign = delta.signum();
-    let abs_delta = delta.abs();
-    sign * strength * abs_delta.powf(curve)
+fn acceleration_curve(delta: f32) -> f32 {
+    let numerator = 1.5;
+    let exponent = -1.1 * delta;
+    let denominator = 1.0 + f32::exp(exponent);
+    let vertical_shift = -0.75;
+
+    (numerator / denominator) + vertical_shift
 }
 
 fn do_keyboard_tracking(
@@ -190,30 +193,27 @@ fn do_keyboard_tracking(
 
         let length = chars.len();
 
-        let mut amount = current_pos.translation.length() - *last;
+        let delta = current_pos.translation.length() - *last;
 
-        println!("amount: {}", amount);
+        println!("amount: {}", delta);
 
-
-        //*extra = 2.0.powf(amount) - 1.0;
-
-
-        let curve = 0.5;
-        let strength = 1.0;
+        let readjustment = 1000.0;
 
 
+        println!("readjusted: {}", delta * readjustment);
 
-        *extra += scale_delta_adjustable(amount * amount, curve, strength);
+        *extra += (acceleration_curve(delta * readjustment * 2.0) / readjustment) * 4.0;
+
+        println!("acc curve: {}", acceleration_curve(delta * readjustment) / readjustment);
+
+        let mag = (*extra /*+ (current_pos.translation.length() / 6.0)*/);
+
+        /*let mut scaled = mag.rem_euclid(1.0);*/
 
 
-        let mag = (current_pos.translation.length() + *extra ) * 1.0;
+        let val = (mag * 1.5) as usize % length;
 
-        let mut scaled = mag.rem_euclid(1.0);
-        //println!("{}", scaled);
-
-        let val = (scaled * length as f32) as usize;
-        //println!("{}", val);
-        //let val = (current_pos.translation.distance(Vec3::default()) * 500.0) as usize % length;
+        /*let val = (scaled * length as f32) as usize;*/
         char = *chars.get(val).unwrap();
         text_section.sections.first_mut().unwrap().value = String::from(char);
         *last = current_pos.translation.length();
