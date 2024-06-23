@@ -1,0 +1,19 @@
+[package]
+name = "bevy_xr_keyboard"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+# the bevy_xr releated dependencies target the webxr-refactor branch
+bevy_openxr = { git = "https://github.com/awtterpip/bevy_oxr", rev = "72f2e71"}
+bevy_xr = { git = "https://github.com/awtterpip/bevy_oxr", rev = "72f2e71"}
+bevy_xr_utils = { git = "https://github.com/awtterpip/bevy_oxr",rev = "72f2e71"}
+bevy = "0.13.2"
+bevy_embedded_assets = "0.10.2"
+random-number = "0.1.8"
+bevy_mod_billboard = "0.6.0"
+
+[lib]
+name = "bevy_xr_keyboard"
+crate-type = ["rlib", "cdylib"]
